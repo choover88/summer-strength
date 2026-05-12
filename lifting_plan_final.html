@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="My Lifting Plan">
+<meta name="theme-color" content="#1f5e63">
+<link rel="apple-touch-icon" href="icon.png">
+<title>My Lifting Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
+body { background: #f4f7f8; color: #1f2d2e; min-height: 100vh; }
+.hdr { background: #1f5e63; padding: 14px 16px; position: sticky; top: 0; z-index: 100; }
+.hdr h1 { font-size: 16px; font-weight: 700; color: #fff; }
+.hdr p { font-size: 10px; color: #a8cfd2; margin-top: 2px; }
+
+.wk-strip { background: #fff; padding: 10px 16px; border-bottom: 1px solid #d8dee4; }
+.wk-lbl { font-size: 9px; font-weight: 600; color: #958099; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 7px; }
+.wk-scroll { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.wk-scroll::-webkit-scrollbar { display: none; }
+.wb { flex-shrink: 0; font-size: 10px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1.5px solid #d8dee4; background: #fff; color: #5f7f8e; cursor: pointer; }
+.wb.active { background: #1f5e63; color: #fff; border-color: #1f5e63; }
+.wb.dl { border-style: dashed; }
+.wb.dl.active { background: #c04f9d; border-color: #c04f9d; border-style: solid; color: #fff; }
+
+/* SESSION SELECTOR */
+.session-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 12px 0; margin-bottom: 12px; }
+.sess-card { border-radius: 12px; padding: 13px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+.sess-card:active { transform: scale(0.96); }
+.sess-card.sel { border-color: #1f5e63; }
+.sess-card.legs-card { background: #eaf2f3; }
+.sess-card.upper-card { background: #fce8f6; }
+.sess-card.complete { background: #1f5e63 !important; border-color: transparent !important; }
+.sess-card.complete .sc-title { color: #fff !important; }
+.sess-card.complete .sc-sub { color: #a8cfd2 !important; }
+.sess-card.incomplete { background: #2a2a2a !important; border-color: transparent !important; }
+.sess-card.incomplete .sc-title { color: #ccc !important; }
+.sess-card.incomplete .sc-sub { color: #777 !important; }
+.sc-icon { font-size: 22px; margin-bottom: 5px; }
+.sc-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.legs-card .sc-title { color: #1f5e63; }
+.upper-card .sc-title { color: #8a2270; }
+.sc-sub { font-size: 10px; color: #958099; }
+
+/* LOCATION TOGGLE */
+.loc-toggle { display: flex; gap: 0; margin: 0 12px 12px; border-radius: 10px; overflow: hidden; border: 1.5px solid #d8dee4; background: #fff; }
+.loc-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: #958099; transition: all 0.15s; text-align: center; }
+.loc-btn.active { background: #1f5e63; color: #fff; }
+.loc-btn.active.home-btn { background: #c04f9d; }
+
+.panel { background: #fff; border: 1px solid #d8dee4; border-radius: 14px; overflow: hidden; margin: 0 12px 20px; }
+.panel-head { padding: 14px 16px 12px; border-bottom: 1px solid #d8dee4; background: #f9fbfc; }
+.panel-eye { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #958099; margin-bottom: 3px; }
+.panel-title { font-size: 16px; font-weight: 700; color: #1f2d2e; margin-bottom: 8px; line-height: 1.2; }
+.tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag { font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.tag.legs { background: #eaf2f3; color: #1f5e63; }
+.tag.upper { background: #fce8f6; color: #8a2270; }
+.tag.core { background: #fef3e2; color: #7a4a0a; }
+.tag.home { background: #fdf0fa; color: #6d1a59; }
+.tag.gym { background: #eaf2f3; color: #1a6b3c; }
+.tag.dl-tag { background: #fdf0fa; color: #8a2270; }
+.tag.done-tag { background: #1f5e63; color: #fff; }
+.tag.skip-tag { background: #2a2a2a; color: #aaa; }
+
+.panel-body { padding: 14px 16px; }
+.complete-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+.comp-btn { flex: 1; font-size: 12px; font-weight: 700; padding: 11px 6px; border-radius: 10px; border: 2px solid #d8dee4; background: #f9fbfc; color: #958099; cursor: pointer; text-align: center; min-height: 44px; }
+.comp-btn.done { background: #1f5e63; border-color: #1f5e63; color: #fff; }
+.comp-btn.skip { background: #2a2a2a; border-color: #2a2a2a; color: #ccc; }
+
+.wk-note { border-radius: 10px; padding: 10px 13px; margin-bottom: 13px; font-size: 12px; line-height: 1.6; }
+.wk-note.teal { background: #eaf2f3; border: 1px solid #b8d8db; color: #1f5e63; }
+.wk-note.pink { background: #fdf0fa; border: 1px solid #e8a8d8; color: #6d1a59; }
+.wk-note-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+
+.equip-note { background: #f9fbfc; border: 1px solid #d8dee4; border-radius: 10px; padding: 10px 12px; margin-bottom: 13px; font-size: 12px; color: #5f7f8e; line-height: 1.6; }
+.equip-note strong { color: #1f2d2e; }
+
+.sec-t { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #958099; margin: 14px 0 8px; }
+.ex-card { background: #f9fbfc; border: 1px solid #d8dee4; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.ex-name { font-size: 13px; font-weight: 600; color: #1f2d2e; margin-bottom: 2px; }
+.ex-meta { font-size: 10px; color: #958099; margin-bottom: 6px; }
+.ex-why { font-size: 11px; color: #5f7f8e; font-style: italic; margin-bottom: 8px; line-height: 1.4; }
+.ex-tgt { display: inline-block; background: #eaf2f3; color: #1f5e63; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; margin-bottom: 8px; border: 1px solid #b8d8db; }
+.ex-tgt.dl { background: #fce8f6; color: #8a2270; border-color: #e8a8d8; }
+.ex-tip { font-size: 11px; color: #958099; padding-top: 7px; margin-top: 6px; border-top: 1px solid #d8dee4; line-height: 1.5; }
+.log-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 5px; }
+.log-inp { font-size: 14px; font-weight: 600; color: #1f2d2e; background: #fff; border: 1.5px solid #d8dee4; border-radius: 8px; padding: 7px 8px; width: 80px; text-align: center; -webkit-appearance: none; }
+.log-inp:focus { outline: none; border-color: #1f5e63; }
+.log-unit { font-size: 11px; color: #958099; }
+.log-btn { font-size: 12px; font-weight: 700; background: #1f5e63; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; min-height: 36px; }
+.log-done { font-size: 11px; font-weight: 600; color: #1a6b3c; background: #e8f5ee; border: 1px solid #b2ddc4; border-radius: 20px; padding: 4px 10px; }
+.log-edit { font-size: 11px; color: #958099; background: #fff; border: 1px solid #d8dee4; border-radius: 8px; padding: 4px 9px; cursor: pointer; }
+.prog-bg { height: 3px; background: #d8dee4; border-radius: 2px; overflow: hidden; margin-top: 7px; }
+.prog-fill { height: 3px; background: linear-gradient(90deg,#1f5e63,#c04f9d); border-radius: 2px; }
+.prog-lbl { font-size: 9px; color: #958099; margin-top: 3px; }
+.slist { list-style: none; }
+.slist li { font-size: 12px; color: #5f7f8e; padding: 5px 0; border-bottom: 1px solid #d8dee4; display: flex; gap: 8px; line-height: 1.5; }
+.slist li:last-child { border-bottom: none; }
+.slist li::before { content: "›"; color: #1f5e63; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.bottom-pad { height: 48px; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>My Lifting Plan</h1>
+  <p>2 sessions · home or gym · pairs with Runna</p>
+</div>
+
+<div class="wk-strip">
+  <div class="wk-lbl">Week</div>
+  <div class="wk-scroll" id="wks"></div>
+</div>
+
+<div class="session-grid" id="sessGrid"></div>
+
+<div class="loc-toggle">
+  <button class="loc-btn home-btn active" id="homeBtn">🏠 Home</button>
+  <button class="loc-btn gym-btn" id="gymBtn">🏋️ Gym (Planet Fitness)</button>
+</div>
+
+<div id="panel"></div>
+<div class="bottom-pad"></div>
+
+<script>
+var DL=[4,8,12];
+function isDL(w){return DL.indexOf(w)!==-1;}
+
+// ─── EXERCISE DATA ───────────────────────────────────────────────
+// key format: session_location e.g. legs_gym, legs_home, upper_gym, upper_home
+// Each exercise has a storageKey so logs persist regardless of location swap
+
+var EX = {
+  legs_gym: [
+    {key:"lgh_hip",   name:"Hip thrust machine",       sets:3, rN:"12-15", rD:"10", inc:5,  st:45, unit:"lbs", why:"Glute max — #1 priority per your PT. Powers every running stride.", tip:"Pad across hips, drive through heels, squeeze HARD at top, hold 1-2 sec, lower slowly."},
+    {key:"lgh_press", name:"Leg press",                sets:3, rN:"12",    rD:"10", inc:10, st:70, unit:"lbs", why:"Quad + glute strength. Feet high + wide = more glutes, less quad.", tip:"Feet HIGH + WIDE on platform. Push through heels. Slow on the way down — 3 counts."},
+    {key:"lgh_abd",   name:"Hip abduction machine",    sets:3, rN:"15",    rD:"12", inc:5,  st:40, unit:"lbs", why:"Glute medius — the muscle causing your hip pain and IT band issues.", tip:"Push out slowly, hold 1 sec, slow controlled return. No slamming. This one should burn."},
+    {key:"lgh_curl",  name:"Lying hamstring curl",     sets:3, rN:"12-15", rD:"10", inc:5,  st:30, unit:"lbs", why:"Hamstring strength balances quad dominance — key for IT band health.", tip:"SLOW on the way down — 4 counts. Hips flat on pad. Start lighter than you think."},
+    {key:"lgh_ext",   name:"Hip extension machine (or cable kickback)", sets:3, rN:"15", rD:"12", inc:5, st:20, unit:"lbs", why:"Isolates glute max — machine version so no dumbbell territory needed.", tip:"Squeeze at full extension. Slow and controlled. Feel it in your glute, not your lower back."},
+    {key:"lgh_calf",  name:"Seated calf raise machine",sets:3, rN:"15",    rD:"12", inc:5,  st:40, unit:"lbs", why:"Calf strength protects Achilles and improves push-off power when running.", tip:"Full range — all the way up on toes, all the way down. Slow both directions."}
+  ],
+  legs_home: [
+    {key:"lhh_glbr",  name:"Glute bridge (band above knees)", sets:3, rN:"15",    rD:"12", inc:0, st:0, unit:"BW", why:"Glute max activation — the foundational glute exercise. Band adds lateral resistance.", tip:"Drive hips up, squeeze HARD at top, hold 2 sec. Press knees out against the band throughout."},
+    {key:"lhh_sgl",   name:"Single-leg glute bridge",  sets:3, rN:"10",    rD:"8",  inc:0,  st:0,  unit:"BW", why:"Single-leg version reveals left/right glute imbalance — important for your right hip.", tip:"One leg extended, drive through heel of the grounded foot. Hips stay level throughout."},
+    {key:"lhh_squat", name:"Goblet squat (dumbbell)",  sets:3, rN:"12",    rD:"10", inc:5,  st:15, unit:"lbs", why:"Quad + glute strength. Dumbbell at chest keeps you upright — great for beginners.", tip:"Hold DB at chest. Sit DOWN between heels. Knees push out over toes. Drive through heels to stand."},
+    {key:"lhh_rdl",   name:"Romanian deadlift (dumbbells)", sets:3, rN:"10-12", rD:"8", inc:5, st:15, unit:"lbs", why:"Hamstring + glute chain — the most important posterior chain move for runners.", tip:"Hinge at hips, push them BACK, keep back flat, feel hamstring stretch, squeeze glutes at top."},
+    {key:"lhh_clam",  name:"Clamshells with band",     sets:3, rN:"15",    rD:"12", inc:0,  st:0,  unit:"BW", why:"Glute medius — directly targets the hip pain and IT band issues your PT flagged.", tip:"Lie on side, band above knees, feet together, rotate top knee up. Don't let hips roll back."},
+    {key:"lhh_step",  name:"Step-up on bench (bodyweight or DBs)", sets:3, rN:"10", rD:"8", inc:5, st:0, unit:"lbs", why:"Single-leg strength that mirrors running stride. Great for left/right balance.", tip:"Drive through the heel of the working leg — don't push off the back foot. Step down slowly."}
+  ],
+  upper_gym: [
+    {key:"ugh_lat",   name:"Lat pulldown",             sets:3, rN:"12",    rD:"10", inc:5,  st:40, unit:"lbs", why:"Back strength = tall running posture. Stops you hunching in the second half of runs.", tip:"Elbows to back pockets. Lead with back, not hands. Squeeze at the bottom."},
+    {key:"ugh_row",   name:"Seated cable row",         sets:3, rN:"12",    rD:"10", inc:5,  st:40, unit:"lbs", why:"Mid-back strength directly counters forward slouch that builds in long runs.", tip:"Pull to belly button. Torso stays upright — don't rock. Squeeze shoulder blades together."},
+    {key:"ugh_chest", name:"Chest press machine",      sets:3, rN:"12",    rD:"10", inc:5,  st:30, unit:"lbs", why:"Chest + shoulder. Supports arm drive which powers running economy.", tip:"Back on pad the whole time. Slow return — 3 counts. No locking elbows."},
+    {key:"ugh_shld",  name:"Shoulder press machine",   sets:3, rN:"12",    rD:"10", inc:5,  st:20, unit:"lbs", why:"Shoulder stability = efficient arm carry = better running form.", tip:"Shoulders stay DOWN away from ears. Go lighter than you think here."},
+    {key:"ugh_plank", name:"Plank hold",               sets:3, rN:"30-45s",rD:"20s",inc:0, st:0,  unit:"BW", why:"Core is your running engine. Weak core = wasted energy + lower back stress.", tip:"Elbows under shoulders. Squeeze glutes and abs. Don't let hips sag or pike up."},
+    {key:"ugh_dbug",  name:"Dead bug",                 sets:3, rN:"10",    rD:"8",  inc:0,  st:0,  unit:"BW", why:"Deep core stability — protects your spine during running, especially with scoliosis.", tip:"Lower back PRESSED into floor the entire time. Slow and controlled. Breathe out as you extend."},
+    {key:"ugh_tri",   name:"Tricep pushdown (cable)",  sets:2, rN:"12",    rD:"10", inc:2.5,st:15, unit:"lbs", why:"Arm strength supports running form. Cable = no dumbbells needed.", tip:"Elbows pinned to sides. Push to full extension. Slow return."}
+  ],
+  upper_home: [
+    {key:"uhh_push",  name:"Push-up (or incline on bench)", sets:3, rN:"10-15", rD:"8", inc:0, st:0, unit:"BW", why:"Chest + shoulder + core all at once. Incline version (hands on bench) is easier if needed.", tip:"Body in a straight line. Elbows at 45 degrees — not flared out wide. Lower chest to bench or floor."},
+    {key:"uhh_row",   name:"Dumbbell bent-over row",   sets:3, rN:"12",    rD:"10", inc:5,  st:15, unit:"lbs", why:"Back strength = running posture. This replaces the cable row without any machine.", tip:"Hinge forward, back flat, row DB to hip — not armpit. Elbow tracks back, not out."},
+    {key:"uhh_fly",   name:"Dumbbell chest fly on bench", sets:3, rN:"12", rD:"10", inc:2.5,st:10, unit:"lbs", why:"Chest stretch + strength. Lighter weight, great range of motion.", tip:"Slight bend in elbows throughout. Lower arms wide, squeeze chest to bring DBs back together."},
+    {key:"uhh_shld",  name:"Dumbbell shoulder press (seated on bench)", sets:3, rN:"12", rD:"10", inc:2.5, st:10, unit:"lbs", why:"Shoulder stability for arm carry. Seated = safer, no spotter needed.", tip:"Press up and slightly in — don't lock elbows. Shoulders stay down away from ears."},
+    {key:"uhh_brow",  name:"Band pull-apart",          sets:3, rN:"15",    rD:"12", inc:0,  st:0,  unit:"BW", why:"Upper back and rear shoulder — key for running posture and preventing rounded shoulders.", tip:"Hold band at shoulder height, arms wide, pull apart squeezing shoulder blades. Slow release."},
+    {key:"uhh_plank", name:"Plank hold",               sets:3, rN:"30-45s",rD:"20s",inc:0, st:0,  unit:"BW", why:"Core is your running engine. Weak core = wasted energy and lower back pain.", tip:"Elbows under shoulders. Squeeze glutes and abs. Don't let hips sag or pike up."},
+    {key:"uhh_dbug",  name:"Dead bug",                 sets:3, rN:"10",    rD:"8",  inc:0,  st:0,  unit:"BW", why:"Deep core stability — especially important with your mild scoliosis.", tip:"Lower back PRESSED into floor. Opposite arm and leg extend slowly. Breathe out on extension."}
+  ]
+};
+
+var WARMUP = {
+  legs_gym:  ["Clamshells w/ band — 15 reps each side","Glute bridge hold — 2x10 — 3-sec squeeze at top","Standing fire hydrant — 12 each side","Hip flexor stretch (kneeling) — 40 sec each side"],
+  legs_home: ["Clamshells w/ band — 15 reps each side","Glute bridge hold — 2x10 — 3-sec squeeze at top","Hip flexor stretch (kneeling) — 40 sec each side","Leg swings — 10 forward/back + 10 side/side each leg"],
+  upper_gym: ["5 min light cardio (walk or bike)","Arm circles — 10 forward, 10 backward","Shoulder rolls — 10 each direction","Band pull-apart — 15 reps"],
+  upper_home:["5 min brisk walk or march in place","Arm circles — 10 forward, 10 backward","Band pull-apart — 15 reps","Chest opener stretch — 30 sec"]
+};
+
+var COOLDOWN = {
+  legs_gym:  ["90/90 hip stretch — 60 sec each side","Piriformis (figure-four) — 45 sec each side","IT band foam roll — 60-90 sec each side","Quad stretch — 30 sec each side"],
+  legs_home: ["90/90 hip stretch — 60 sec each side","Piriformis (figure-four) — 45 sec each side","Pigeon pose — 60 sec each side","Hamstring stretch — 45 sec each side"],
+  upper_gym: ["Chest doorway stretch — 30 sec","Cross-body shoulder stretch — 30 sec each side","Lat stretch (hang lightly from bar) — 30 sec","Child's pose — 45 sec"],
+  upper_home:["Chest stretch (arms on doorframe) — 30 sec","Cross-body shoulder stretch — 30 sec each side","Thread the needle (thoracic rotation) — 30 sec each side","Child's pose — 45 sec"]
+};
+
+var EQUIP = {
+  legs_gym:  "Machines only — no free weights needed. Hip thrust machine, leg press, hip abduction, hamstring curl, hip extension/cable station, calf raise machine.",
+  legs_home: "Bench + dumbbells + resistance band. No machines, no gym needed.",
+  upper_gym: "Machines + cable station only. No dumbbells, no barbell, no spotter needed.",
+  upper_home:"Bench + dumbbells + resistance band. No machines needed."
+};
+
+var WK_NOTES = {
+  legs: {
+    1:"Week 1: Go lighter than you think. You are learning movement patterns. Form always beats weight.",
+    2:"Week 2: Add a little weight where last week felt easy. Focus on the squeeze — feel each muscle working.",
+    3:"Week 3: Finding your working weights now. Last 2-3 reps of each set should feel genuinely challenging.",
+    4:"Deload week: Weights drop to ~90% and fewer reps. Your body is absorbing all the work. Do not skip this.",
+    5:"Week 5: Back to full effort. You may notice the same weights feel easier — that is real progress.",
+    6:"Week 6: Time to push a little. If all 15 reps on glute work feel easy, add 5 lbs.",
+    7:"Week 7: Strong glutes = stronger runs. Focus on single-leg work this week — that is your IT band insurance.",
+    8:"Deload week: Weights drop to ~90%, fewer reps. Let your body catch up with all the adaptations.",
+    9:"Week 9: Reload and push. You have 8 weeks of solid base. The strength is real now.",
+    10:"Week 10: Focus on the mind-muscle connection — really FEEL the target muscle on every single rep.",
+    11:"Week 11: Strong finish. Stay consistent — two sessions a week is genuinely all you need.",
+    12:"Deload week: Final deload. Lighter loads, fresh legs. Great time to reflect on how far you have come."
+  },
+  upper: {
+    1:"Week 1: Light weights, perfect form. Back exercises feel awkward at first — totally normal.",
+    2:"Week 2: Focus on the pull — lead with elbows not hands on rows and pulldowns.",
+    3:"Week 3: Add weight where last week felt easy. Plank: aim for 30 solid seconds before going longer.",
+    4:"Deload week: Drop to ~90% weight, fewer reps. Core work stays the same — bodyweight is fine.",
+    5:"Week 5: Challenge the plank — aim for 45 seconds. Dead bug: slow is better than fast.",
+    6:"Week 6: Upper body strength translates directly to posture in miles 8-13. Keep showing up.",
+    7:"Week 7: Focus on back exercises especially — they do the most for running posture.",
+    8:"Deload week: Lighter loads. Keep core work at full effort — plank and dead bug stay the same.",
+    9:"Week 9: Push the back work. Rows and lat pulldowns should feel heavier than week 1.",
+    10:"Week 10: Strong back = tall posture in the second half of every run. You are building that now.",
+    11:"Week 11: Final push. Keep form tight even as the weight gets heavier.",
+    12:"Deload week: Light and controlled. Notice how much better your posture feels vs week 1."
+  }
+};
+
+// ─── STORAGE ───────────────────────────────────────────────────
+function sl(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function gl(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function rl(k){try{localStorage.removeItem(k);}catch(e){}}
+function saveLog(ek,w,v){sl("lp2_"+ek+"_w"+w,v);}
+function loadLog(ek,w){return gl("lp2_"+ek+"_w"+w,null);}
+function delLog(ek,w){rl("lp2_"+ek+"_w"+w);}
+// status key includes location so home+gym can be tracked independently
+function saveDayStatus(sess,loc,week,s){try{localStorage.setItem("lpds2_"+sess+"_"+loc+"_w"+week,s);}catch(e){}}
+function loadDayStatus(sess,loc,week){try{return localStorage.getItem("lpds2_"+sess+"_"+loc+"_w"+week)||null;}catch(e){return null;}}
+function clearDayStatus(sess,loc,week){try{localStorage.removeItem("lpds2_"+sess+"_"+loc+"_w"+week);}catch(e){}}
+
+function getTarget(ex,week){
+  var last=null;
+  for(var w=week-1;w>=1;w--){var l=loadLog(ex.key,w);if(l!==null){last={w:w,v:l};break;}}
+  var base=last?last.v:ex.st;
+  if(last&&!isDL(last.w)&&!isDL(week)&&ex.unit!=="BW") base=last.v+ex.inc;
+  if(isDL(week)&&ex.unit!=="BW") base=Math.round((base*0.9)/2.5)*2.5;
+  return base;
+}
+
+// ─── STATE ─────────────────────────────────────────────────────
+var cw=1, sess="legs", loc="home";
+
+// ─── WEEK BUTTONS ──────────────────────────────────────────────
+function buildWks(){
+  var h="";
+  for(var i=1;i<=12;i++){
+    var d=DL.indexOf(i)!==-1;
+    h+="<button class='wb"+(i===1?" active":"")+(d?" dl":"")+"' data-w='"+i+"'>Week "+i+"</button>";
+  }
+  document.getElementById("wks").innerHTML=h;
+  document.querySelectorAll(".wb").forEach(function(b){
+    b.addEventListener("click",function(){
+      cw=parseInt(this.dataset.w);
+      document.querySelectorAll(".wb").forEach(function(x){x.classList.remove("active");});
+      this.classList.add("active");
+      buildSessGrid();
+      render();
+    });
+  });
+}
+
+// ─── SESSION GRID ───────────────────────────────────────────────
+function buildSessGrid(){
+  var grid=document.getElementById("sessGrid");
+  grid.innerHTML=
+    "<div class='sess-card legs-card"+(sess==="legs"?" sel":"")+"' data-sess='legs'>"+
+      "<div class='sc-icon'>🦵</div>"+
+      "<div class='sc-title'>Legs + Glutes</div>"+
+      "<div class='sc-sub'>~50 min · tap to open</div>"+
+    "</div>"+
+    "<div class='sess-card upper-card"+(sess==="upper"?" sel":"")+"' data-sess='upper'>"+
+      "<div class='sc-icon'>💪</div>"+
+      "<div class='sc-title'>Upper + Core</div>"+
+      "<div class='sc-sub'>~45 min · tap to open</div>"+
+    "</div>";
+  // apply status colors
+  ["legs","upper"].forEach(function(s){
+    var el=grid.querySelector("[data-sess='"+s+"']");
+    var status=loadDayStatus(s,loc,cw);
+    if(status==="complete") el.classList.add("complete");
+    else if(status==="incomplete") el.classList.add("incomplete");
+  });
+  grid.querySelectorAll(".sess-card").forEach(function(el){
+    el.addEventListener("click",function(){
+      sess=this.dataset.sess;
+      buildSessGrid();
+      render();
+      setTimeout(function(){document.getElementById("panel").scrollIntoView({behavior:"smooth",block:"nearest"});},50);
+    });
+  });
+}
+
+// ─── LOCATION TOGGLE ────────────────────────────────────────────
+function bindLocToggle(){
+  document.getElementById("homeBtn").addEventListener("click",function(){
+    loc="home";
+    document.getElementById("homeBtn").classList.add("active");
+    document.getElementById("gymBtn").classList.remove("active");
+    buildSessGrid();
+    render();
+  });
+  document.getElementById("gymBtn").addEventListener("click",function(){
+    loc="gym";
+    document.getElementById("gymBtn").classList.add("active");
+    document.getElementById("homeBtn").classList.remove("active");
+    buildSessGrid();
+    render();
+  });
+}
+
+// ─── COMPLETE/SKIP ───────────────────────────────────────────────
+function markDay(status){
+  var cur=loadDayStatus(sess,loc,cw);
+  if(cur===status){clearDayStatus(sess,loc,cw);}
+  else{saveDayStatus(sess,loc,cw,status);}
+  buildSessGrid();
+  refreshCompBar();
+}
+function refreshCompBar(){
+  var s=loadDayStatus(sess,loc,cw);
+  var dBtn=document.getElementById("btn-complete"),sBtn=document.getElementById("btn-skip"),stag=document.getElementById("status-tag");
+  if(dBtn){dBtn.className="comp-btn"+(s==="complete"?" done":"");dBtn.textContent=s==="complete"?"✓ Completed":"Mark complete";}
+  if(sBtn){sBtn.className="comp-btn"+(s==="incomplete"?" skip":"");sBtn.textContent=s==="incomplete"?"✕ Skipped":"Mark skipped";}
+  if(stag){
+    if(s==="complete") stag.innerHTML="<span class='tag done-tag'>Completed</span>";
+    else if(s==="incomplete") stag.innerHTML="<span class='tag skip-tag'>Skipped</span>";
+    else stag.innerHTML="";
+  }
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────
+function render(){
+  var p=document.getElementById("panel");
+  var dl=isDL(cw);
+  var exKey=sess+"_"+loc;
+  var exList=EX[exKey];
+  var warmup=WARMUP[exKey];
+  var cooldown=COOLDOWN[exKey];
+  var note=WK_NOTES[sess][cw];
+  var equip=EQUIP[exKey];
+  var s=loadDayStatus(sess,loc,cw);
+  var isLegs=sess==="legs";
+  var locLabel=loc==="home"?"🏠 Home":"🏋️ Planet Fitness";
+  var titleStr=(isLegs?"Legs + Glutes":"Upper Body + Core")+" · "+locLabel;
+  var tagH=(isLegs?"<span class='tag legs'>Legs + Glutes</span>":"<span class='tag upper'>Upper body</span>")+"<span class='tag core'>Core</span>"+(loc==="home"?"<span class='tag home'>Home</span>":"<span class='tag gym'>Gym</span>")+(dl?"<span class='tag dl-tag'>Deload</span>":"");
+  var statusTagContent="";
+  if(s==="complete") statusTagContent="<span class='tag done-tag'>Completed</span>";
+  else if(s==="incomplete") statusTagContent="<span class='tag skip-tag'>Skipped</span>";
+
+  // build exercises
+  var exH="";
+  exList.forEach(function(ex){
+    var target=getTarget(ex,cw);
+    var logged=loadLog(ex.key,cw);
+    var reps=dl?ex.rD:ex.rN;
+    var tDisp=ex.unit==="BW"?"Bodyweight":target+" lbs";
+    var cnt=0;for(var w=1;w<=12;w++){if(loadLog(ex.key,w)!==null)cnt++;}
+    var pct=Math.round((cnt/12)*100);
+    var logH="";
+    if(logged!==null){
+      logH="<div class='log-row'><span class='log-done'>Logged: "+(ex.unit==="BW"?"Bodyweight":logged+" lbs")+"</span><button class='log-edit' id='edit_"+ex.key+"'>edit</button></div>";
+    } else if(ex.unit==="BW"){
+      logH="<div class='log-row'><button class='log-btn' id='bw_"+ex.key+"'>Mark done</button></div>";
+    } else {
+      logH="<div class='log-row'><input class='log-inp' id='i_"+ex.key+"' type='number' inputmode='decimal' placeholder='"+target+"'><span class='log-unit'>lbs</span><button class='log-btn' id='save_"+ex.key+"'>Save</button></div>";
+    }
+    exH+="<div class='ex-card'>"+
+      "<div class='ex-name'>"+ex.name+"</div>"+
+      "<div class='ex-meta'>"+ex.sets+" sets × "+reps+" reps</div>"+
+      "<div class='ex-why'>"+ex.why+"</div>"+
+      "<div class='ex-tgt"+(dl?" dl":"")+"'>Target: "+tDisp+"</div>"+
+      logH+
+      "<div class='prog-bg'><div class='prog-fill' style='width:"+pct+"%'></div></div>"+
+      "<div class='prog-lbl'>"+cnt+"/12 weeks logged</div>"+
+      "<div class='ex-tip'>"+ex.tip+"</div>"+
+    "</div>";
+  });
+
+  var wuH=warmup.map(function(x){return "<li>"+x+"</li>";}).join("");
+  var cdH=cooldown.map(function(x){return "<li>"+x+"</li>";}).join("");
+
+  p.innerHTML="<div class='panel'>"+
+    "<div class='panel-head'>"+
+      "<div class='panel-eye'>Week "+cw+(dl?" · Deload":"")+"</div>"+
+      "<div class='panel-title'>"+titleStr+"</div>"+
+      "<div class='tags'>"+tagH+"<span id='status-tag'>"+statusTagContent+"</span></div>"+
+    "</div>"+
+    "<div class='panel-body'>"+
+      "<div class='complete-bar'>"+
+        "<button class='comp-btn"+(s==="complete"?" done":"")+"' id='btn-complete'>"+(s==="complete"?"✓ Completed":"Mark complete")+"</button>"+
+        "<button class='comp-btn"+(s==="incomplete"?" skip":"")+"' id='btn-skip'>"+(s==="incomplete"?"✕ Skipped":"Mark skipped")+"</button>"+
+      "</div>"+
+      "<div class='wk-note "+(dl?"pink":"teal")+"'><div class='wk-note-title'>"+(dl?"Deload week":"This week")+"</div>"+note+"</div>"+
+      "<div class='equip-note'><strong>Equipment today:</strong> "+equip+"</div>"+
+      "<div class='sec-t'>Warm-up — 5 min, do not skip</div>"+
+      "<ul class='slist'>"+wuH+"</ul>"+
+      "<div class='sec-t'>Exercises + weight tracker</div>"+
+      exH+
+      "<div class='sec-t'>Cool-down + stretch</div>"+
+      "<ul class='slist'>"+cdH+"</ul>"+
+    "</div>"+
+  "</div>";
+
+  // bind events after render
+  document.getElementById("btn-complete").addEventListener("click",function(){markDay("complete");});
+  document.getElementById("btn-skip").addEventListener("click",function(){markDay("incomplete");});
+  exList.forEach(function(ex){
+    var saveBtn=document.getElementById("save_"+ex.key);
+    var inp=document.getElementById("i_"+ex.key);
+    var editBtn=document.getElementById("edit_"+ex.key);
+    var bwBtn=document.getElementById("bw_"+ex.key);
+    if(saveBtn&&inp) saveBtn.addEventListener("click",function(){
+      var v=parseFloat(inp.value);
+      if(isNaN(v)||v<=0){inp.style.borderColor="#c04f9d";return;}
+      saveLog(ex.key,cw,v);render();
+    });
+    if(editBtn) editBtn.addEventListener("click",function(){delLog(ex.key,cw);render();});
+    if(bwBtn) bwBtn.addEventListener("click",function(){saveLog(ex.key,cw,0);render();});
+  });
+}
+
+buildWks();
+buildSessGrid();
+bindLocToggle();
+render();
+</script>
+</body>
+</html>
