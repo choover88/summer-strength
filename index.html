@@ -45,11 +45,7 @@ body { background: #f4f7f8; color: #1f2d2e; min-height: 100vh; }
 .upper-card .sc-title { color: #8a2270; }
 .sc-sub { font-size: 10px; color: #958099; }
 
-/* LOCATION TOGGLE */
-.loc-toggle { display: flex; gap: 0; margin: 0 12px 12px; border-radius: 10px; overflow: hidden; border: 1.5px solid #d8dee4; background: #fff; }
-.loc-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: #958099; transition: all 0.15s; text-align: center; }
-.loc-btn.active { background: #1f5e63; color: #fff; }
-.loc-btn.active.home-btn { background: #c04f9d; }
+
 
 .panel { background: #fff; border: 1px solid #d8dee4; border-radius: 14px; overflow: hidden; margin: 0 12px 20px; }
 .panel-head { padding: 14px 16px 12px; border-bottom: 1px solid #d8dee4; background: #f9fbfc; }
@@ -109,7 +105,7 @@ body { background: #f4f7f8; color: #1f2d2e; min-height: 100vh; }
 
 <div class="hdr">
   <h1>My Lifting Plan</h1>
-  <p>2 sessions · home or gym · pairs with Runna</p>
+  <p>2 sessions · Planet Fitness · pairs with Runna</p>
 </div>
 
 <div class="wk-strip">
@@ -119,10 +115,6 @@ body { background: #f4f7f8; color: #1f2d2e; min-height: 100vh; }
 
 <div class="session-grid" id="sessGrid"></div>
 
-<div class="loc-toggle">
-  <button class="loc-btn home-btn active" id="homeBtn">🏠 Home</button>
-  <button class="loc-btn gym-btn" id="gymBtn">🏋️ Gym (Planet Fitness)</button>
-</div>
 
 <div id="panel"></div>
 <div class="bottom-pad"></div>
@@ -146,54 +138,31 @@ var EX = {
     {key:"lgh_ext",   name:"Leg extension machine",    sets:3, rN:"12",    rD:"10", inc:5,  st:30, unit:"lbs", why:"Quad strength supports knee stability and helps with downhill running. Finisher — done after all glute work.", tip:"Extend fully, hold 1 sec at the top, SLOW on the way down — 3 counts. Don't let the weight crash down."},
     {key:"lgh_rdl",   name:"Dumbbell RDL (2x30 lbs start)", sets:3, rN:"10-12", rD:"8", inc:5, st:30, unit:"lbs", why:"Hamstring + glute chain together. Your one dumbbell move — you nailed 2x30 lbs already!", tip:"Hinge at hips, push them BACK, flat back, feel the hamstring stretch, drive up and squeeze glutes at top."},
     {key:"lgh_calf",  name:"Seated calf raise machine", sets:3, rN:"15",   rD:"12", inc:5,  st:40, unit:"lbs", why:"Calf strength protects your Achilles and improves push-off power when running.", tip:"Full range — all the way up on toes, all the way down. Slow both directions. Don't rush this one."}
-  ],
-  legs_home: [
-    {key:"lhh_glbr",  name:"Glute bridge (band above knees)", sets:3, rN:"15",    rD:"12", inc:0, st:0, unit:"BW", why:"Glute max activation — the foundational glute exercise. Band adds lateral resistance.", tip:"Drive hips up, squeeze HARD at top, hold 2 sec. Press knees out against the band throughout."},
-    {key:"lhh_sgl",   name:"Single-leg glute bridge",  sets:3, rN:"10",    rD:"8",  inc:0,  st:0,  unit:"BW", why:"Single-leg version reveals left/right glute imbalance — important for your right hip.", tip:"One leg extended, drive through heel of the grounded foot. Hips stay level throughout."},
-    {key:"lhh_squat", name:"Goblet squat (dumbbell)",  sets:3, rN:"12",    rD:"10", inc:5,  st:15, unit:"lbs", why:"Quad + glute strength. Dumbbell at chest keeps you upright — great for beginners.", tip:"Hold DB at chest. Sit DOWN between heels. Knees push out over toes. Drive through heels to stand."},
-    {key:"lhh_rdl",   name:"Romanian deadlift (dumbbells)", sets:3, rN:"10-12", rD:"8", inc:5, st:15, unit:"lbs", why:"Hamstring + glute chain — the most important posterior chain move for runners.", tip:"Hinge at hips, push them BACK, keep back flat, feel hamstring stretch, squeeze glutes at top."},
-    {key:"lhh_clam",  name:"Clamshells with band",     sets:3, rN:"15",    rD:"12", inc:0,  st:0,  unit:"BW", why:"Glute medius — directly targets the hip pain and IT band issues your PT flagged.", tip:"Lie on side, band above knees, feet together, rotate top knee up. Don't let hips roll back."},
-    {key:"lhh_step",  name:"Step-up on bench (bodyweight or DBs)", sets:3, rN:"10", rD:"8", inc:5, st:0, unit:"lbs", why:"Single-leg strength that mirrors running stride. Great for left/right balance.", tip:"Drive through the heel of the working leg — don't push off the back foot. Step down slowly."}
-  ],
-  upper_gym: [
-    {key:"ugh_lat",   name:"Lat pulldown",             sets:3, rN:"12",    rD:"10", inc:5,  st:40, unit:"lbs", why:"Back strength = tall running posture. Stops you hunching in the second half of runs.", tip:"Elbows to back pockets. Lead with back, not hands. Squeeze at the bottom."},
-    {key:"ugh_row",   name:"Seated cable row",         sets:3, rN:"12",    rD:"10", inc:5,  st:40, unit:"lbs", why:"Mid-back strength directly counters forward slouch that builds in long runs.", tip:"Pull to belly button. Torso stays upright — don't rock. Squeeze shoulder blades together."},
-    {key:"ugh_chest", name:"Chest press machine",      sets:3, rN:"12",    rD:"10", inc:5,  st:30, unit:"lbs", why:"Chest + shoulder. Supports arm drive which powers running economy.", tip:"Back on pad the whole time. Slow return — 3 counts. No locking elbows."},
-    {key:"ugh_shld",  name:"Shoulder press machine",   sets:3, rN:"12",    rD:"10", inc:5,  st:20, unit:"lbs", why:"Shoulder stability = efficient arm carry = better running form.", tip:"Shoulders stay DOWN away from ears. Go lighter than you think here."},
-    {key:"ugh_plank", name:"Plank hold",               sets:3, rN:"30-45s",rD:"20s",inc:0, st:0,  unit:"BW", why:"Core is your running engine. Weak core = wasted energy + lower back stress.", tip:"Elbows under shoulders. Squeeze glutes and abs. Don't let hips sag or pike up."},
-    {key:"ugh_dbug",  name:"Dead bug",                 sets:3, rN:"10",    rD:"8",  inc:0,  st:0,  unit:"BW", why:"Deep core stability — protects your spine during running, especially with scoliosis.", tip:"Lower back PRESSED into floor the entire time. Slow and controlled. Breathe out as you extend."},
-    {key:"ugh_tri",   name:"Tricep pushdown (cable)",  sets:2, rN:"12",    rD:"10", inc:2.5,st:15, unit:"lbs", why:"Arm strength supports running form. Cable = no dumbbells needed.", tip:"Elbows pinned to sides. Push to full extension. Slow return."}
-  ],
-  upper_home: [
-    {key:"uhh_push",  name:"Push-up (or incline on bench)", sets:3, rN:"10-15", rD:"8", inc:0, st:0, unit:"BW", why:"Chest + shoulder + core all at once. Incline version (hands on bench) is easier if needed.", tip:"Body in a straight line. Elbows at 45 degrees — not flared out wide. Lower chest to bench or floor."},
-    {key:"uhh_row",   name:"Dumbbell bent-over row",   sets:3, rN:"12",    rD:"10", inc:5,  st:15, unit:"lbs", why:"Back strength = running posture. This replaces the cable row without any machine.", tip:"Hinge forward, back flat, row DB to hip — not armpit. Elbow tracks back, not out."},
-    {key:"uhh_fly",   name:"Dumbbell chest fly on bench", sets:3, rN:"12", rD:"10", inc:2.5,st:10, unit:"lbs", why:"Chest stretch + strength. Lighter weight, great range of motion.", tip:"Slight bend in elbows throughout. Lower arms wide, squeeze chest to bring DBs back together."},
-    {key:"uhh_shld",  name:"Dumbbell shoulder press (seated on bench)", sets:3, rN:"12", rD:"10", inc:2.5, st:10, unit:"lbs", why:"Shoulder stability for arm carry. Seated = safer, no spotter needed.", tip:"Press up and slightly in — don't lock elbows. Shoulders stay down away from ears."},
-    {key:"uhh_brow",  name:"Band pull-apart",          sets:3, rN:"15",    rD:"12", inc:0,  st:0,  unit:"BW", why:"Upper back and rear shoulder — key for running posture and preventing rounded shoulders.", tip:"Hold band at shoulder height, arms wide, pull apart squeezing shoulder blades. Slow release."},
-    {key:"uhh_plank", name:"Plank hold",               sets:3, rN:"30-45s",rD:"20s",inc:0, st:0,  unit:"BW", why:"Core is your running engine. Weak core = wasted energy and lower back pain.", tip:"Elbows under shoulders. Squeeze glutes and abs. Don't let hips sag or pike up."},
-    {key:"uhh_dbug",  name:"Dead bug",                 sets:3, rN:"10",    rD:"8",  inc:0,  st:0,  unit:"BW", why:"Deep core stability — especially important with your mild scoliosis.", tip:"Lower back PRESSED into floor. Opposite arm and leg extend slowly. Breathe out on extension."}
+  ], upper_gym: [
+    {key:"ugh_pull",  name:"Pulldown machine",         sets:3, rN:"12",    rD:"10", inc:5,  st:40, unit:"lbs", why:"Lats = the wide back muscles that pull your shoulders back. Critical for tall running posture in miles 8+.", tip:"Grip wide, pull bar to upper chest, elbows drive DOWN and back. Squeeze lats at the bottom. Slow return."},
+    {key:"ugh_row",   name:"Row machine",              sets:3, rN:"12",    rD:"10", inc:5,  st:40, unit:"lbs", why:"Mid-back strength directly counters the forward slouch that builds up on long runs.", tip:"Sit tall, pull handles to your torso, squeeze shoulder blades together at the end. Don't lean back."},
+    {key:"ugh_rdelt", name:"Rear Deltoid machine",     sets:3, rN:"15",    rD:"12", inc:5,  st:20, unit:"lbs", why:"Back of shoulder — weak rear delts = rounded shoulders = poor running form. This is the runner's machine.", tip:"Push arms backward and out in a wide arc. Slow and controlled. Squeeze at the back. This one should feel different from the row."},
+    {key:"ugh_chest", name:"Chest Press machine",      sets:3, rN:"12",    rD:"10", inc:5,  st:30, unit:"lbs", why:"Chest + front shoulder strength. Supports arm drive and keeps your upper body balanced.", tip:"Back on pad the whole time. Slow return — 3 counts. Don't lock elbows at full extension."},
+    {key:"ugh_shld",  name:"Shoulder Press machine",   sets:3, rN:"12",    rD:"10", inc:5,  st:20, unit:"lbs", why:"Overhead shoulder strength = stable arm carry = more efficient running stride.", tip:"Shoulders stay DOWN away from ears throughout. Go lighter than you think — shoulders are small muscles."},
+    {key:"ugh_chin",  name:"Assisted Chin machine",    sets:3, rN:"8-10",  rD:"6",  inc:5,  st:100,unit:"lbs", why:"Lats + biceps together in one move. One of the best back exercises — and the assist means anyone can do it.", tip:"MORE weight selected = MORE help from the machine. Kneel on pad, grip bar, pull chest up to bar. Slow on the way down. Start with plenty of assistance and reduce over time."},
+    {key:"ugh_tri",   name:"Triceps Extension machine",sets:3, rN:"12",    rD:"10", inc:5,  st:20, unit:"lbs", why:"Tricep strength supports arm drive and elbow stability during running.", tip:"Keep elbows on the pad throughout. Push forward/down to full extension. Slow controlled return."},
+    {key:"ugh_bic",   name:"Biceps Curl machine",      sets:2, rN:"12",    rD:"10", inc:2.5,st:20, unit:"lbs", why:"Bicep strength balances triceps and supports arm swing rhythm.", tip:"Keep elbows on pad. Full range of motion — all the way up, slow all the way down. Don't cheat with shoulders."}
   ]
 };
 
 var WARMUP = {
-  legs_gym:  ["Clamshells w/ band — 15 reps each side","Glute bridge hold — 2x10 — 3-sec squeeze at top","Standing fire hydrant — 12 each side","Hip flexor stretch (kneeling) — 40 sec each side (especially your right hip!)"],
-  legs_home: ["Clamshells w/ band — 15 reps each side","Glute bridge hold — 2x10 — 3-sec squeeze at top","Hip flexor stretch (kneeling) — 40 sec each side","Leg swings — 10 forward/back + 10 side/side each leg"],
-  upper_gym: ["5 min light cardio (walk or bike)","Arm circles — 10 forward, 10 backward","Shoulder rolls — 10 each direction","Band pull-apart — 15 reps"],
-  upper_home:["5 min brisk walk or march in place","Arm circles — 10 forward, 10 backward","Band pull-apart — 15 reps","Chest opener stretch — 30 sec"]
+  legs_gym:  ["Clamshells w/ band — 15 reps each side","Glute bridge hold — 2x10 — 3-sec squeeze at top","Standing fire hydrant — 12 each side","Hip flexor stretch (kneeling) — 40 sec each side (especially your right hip!)"], upper_gym: ["5 min light cardio (walk, bike, or elliptical)","Arm circles — 10 forward, 10 backward","Shoulder rolls — 10 each direction","Neck rolls — 5 each direction (releases tension before pulling exercises)"]
 };
 
 var COOLDOWN = {
-  legs_gym:  ["90/90 hip stretch — 60 sec each side","Piriformis (figure-four) — 45 sec each side","IT band foam roll — 60-90 sec each side","Quad stretch — 30 sec each side"],
-  legs_home: ["90/90 hip stretch — 60 sec each side","Piriformis (figure-four) — 45 sec each side","Pigeon pose — 60 sec each side","Hamstring stretch — 45 sec each side"],
-  upper_gym: ["Chest doorway stretch — 30 sec","Cross-body shoulder stretch — 30 sec each side","Lat stretch (hang lightly from bar) — 30 sec","Child's pose — 45 sec"],
-  upper_home:["Chest stretch (arms on doorframe) — 30 sec","Cross-body shoulder stretch — 30 sec each side","Thread the needle (thoracic rotation) — 30 sec each side","Child's pose — 45 sec"]
+  legs_gym:  ["90/90 hip stretch — 60 sec each side","Piriformis (figure-four) — 45 sec each side","IT band foam roll — 60-90 sec each side","Quad stretch — 30 sec each side"], upper_gym: ["Chest doorway stretch — 30 sec","Cross-body shoulder stretch — 30 sec each side","Lat stretch (hang lightly from bar) — 30 sec","Child's pose — 45 sec"]
 };
 
 var EQUIP = {
   legs_gym:  "Glute Lift Elite, leg press, hip abduction + adduction machines, seated leg curl, glute kickback machine, leg extension machine, seated calf raise, and dumbbells for RDL only (2x30 lbs starting weight).",
   legs_home: "Bench + dumbbells + resistance band. No machines, no gym needed.",
-  upper_gym: "Machines + cable station only. No dumbbells, no barbell, no spotter needed.",
-  upper_home:"Bench + dumbbells + resistance band. No machines needed."
+  upper_gym: "Machines only — no dumbbells, no cables, no spotter needed. Pulldown, Row, Rear Deltoid, Chest Press, Shoulder Press, Assisted Chin, Triceps Extension, Biceps Curl.",
+  upper_home:"Bench + dumbbells + resistance band. Plank and dead bug included here since you have floor space at home!",
 };
 
 var WK_NOTES = {
@@ -249,7 +218,7 @@ function getTarget(ex,week){
 }
 
 // ─── STATE ─────────────────────────────────────────────────────
-var cw=1, sess="legs", loc="home";
+var cw=1, sess="legs", loc="gym";
 
 // ─── WEEK BUTTONS ──────────────────────────────────────────────
 function buildWks(){
@@ -302,23 +271,6 @@ function buildSessGrid(){
 }
 
 // ─── LOCATION TOGGLE ────────────────────────────────────────────
-function bindLocToggle(){
-  document.getElementById("homeBtn").addEventListener("click",function(){
-    loc="home";
-    document.getElementById("homeBtn").classList.add("active");
-    document.getElementById("gymBtn").classList.remove("active");
-    buildSessGrid();
-    render();
-  });
-  document.getElementById("gymBtn").addEventListener("click",function(){
-    loc="gym";
-    document.getElementById("gymBtn").classList.add("active");
-    document.getElementById("homeBtn").classList.remove("active");
-    buildSessGrid();
-    render();
-  });
-}
-
 // ─── COMPLETE/SKIP ───────────────────────────────────────────────
 function markDay(status){
   var cur=loadDayStatus(sess,loc,cw);
@@ -351,7 +303,7 @@ function render(){
   var equip=EQUIP[exKey];
   var s=loadDayStatus(sess,loc,cw);
   var isLegs=sess==="legs";
-  var locLabel=loc==="home"?"🏠 Home":"🏋️ Planet Fitness";
+  var locLabel="🏋️ Planet Fitness";
   var titleStr=(isLegs?"Legs + Glutes":"Upper Body + Core")+" · "+locLabel;
   var tagH=(isLegs?"<span class='tag legs'>Legs + Glutes</span>":"<span class='tag upper'>Upper body</span>")+"<span class='tag core'>Core</span>"+(loc==="home"?"<span class='tag home'>Home</span>":"<span class='tag gym'>Gym</span>")+(dl?"<span class='tag dl-tag'>Deload</span>":"");
   var statusTagContent="";
@@ -432,7 +384,6 @@ function render(){
 
 buildWks();
 buildSessGrid();
-bindLocToggle();
 render();
 </script>
 </body>
